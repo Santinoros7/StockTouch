@@ -1,0 +1,16 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "StockTouch: instalar", "type": "shell", "command": "npm run setup", "problemMatcher": [] },
+    {
+      "label": "StockTouch: levantar todo",
+      "type": "shell",
+      "command": "npm run dev",
+      "isBackground": true,
+      "problemMatcher": [],
+      "group": { "kind": "build", "isDefault": true }
+    },
+    { "label": "StockTouch: tests", "type": "shell", "command": "npm test", "group": "test", "problemMatcher": [] },
+    { "label": "StockTouch: reiniciar datos demo", "type": "shell", "command": "npm run seed", "problemMatcher": [] }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "StockTouch",
+  "short_name": "StockTouch",
+  "description": "Cierre de stock visual para locales al paso",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

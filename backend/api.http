@@ -1,0 +1,49 @@
+### Probá la API desde VS Code con la extensión "REST Client" (clic en "Send Request")
+@base = http://localhost:3001/api
+
+### Salud del servidor
+GET {{base}}/health
+
+### Insumos con burn rate y días de autonomía
+GET {{base}}/locales/1/insumos
+
+### Cierre de turno (niveles: 100 lleno · 50 mitad · 25 casi vacío · 0 vacío)
+POST {{base}}/locales/1/cierres
+Content-Type: application/json
+
+{
+  "items": [
+    { "insumoId": 1, "nivel": 25 },
+    { "insumoId": 2, "nivel": 100 },
+    { "insumoId": 3, "nivel": 50 },
+    { "insumoId": 4, "nivel": 100 },
+    { "insumoId": 5, "nivel": 100 },
+    { "insumoId": 6, "nivel": 100 },
+    { "insumoId": 7, "nivel": 100 },
+    { "insumoId": 8, "nivel": 50 }
+  ]
+}
+
+### Llegó el pedido de Vasos
+POST {{base}}/insumos/1/reposiciones
+Content-Type: application/json
+
+{}
+
+### Historial de pedidos por WhatsApp
+GET {{base}}/locales/1/pedidos
+
+### Reiniciar datos de demo
+POST {{base}}/demo/reset
+
+### Consultar al Asistente de IA (Cuadre de caja y problemas)
+POST {{base}}/ia/ayuda
+Content-Type: application/json
+
+{
+  "pregunta": "Me faltan $3500 en el cierre de la noche y no encuentro el error, ¿qué reviso?",
+  "datosCaja": {
+    "esperado": 45000,
+    "real": 41500
+  }
+}

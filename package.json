@@ -1,0 +1,17 @@
+{
+  "name": "stocktouch",
+  "version": "0.1.0",
+  "private": true,
+  "description": "StockTouch (AlPaso Stock) — inventario visual para locales gastronómicos al paso. MVP StartLab.",
+  "scripts": {
+    "setup": "npm install --prefix frontend",
+    "dev": "node scripts/dev.js",
+    "test": "npm test --prefix backend",
+    "seed": "npm run seed --prefix backend",
+    "build": "npm run build --prefix frontend",
+    "start": "npm run build && npm start --prefix backend"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}

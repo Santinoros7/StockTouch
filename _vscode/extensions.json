@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dsznajder.es7-react-js-snippets",
+    "humao.rest-client",
+    "qwtel.sqlite-viewer",
+    "streetsidesoftware.code-spell-checker-spanish"
+  ]
+}
