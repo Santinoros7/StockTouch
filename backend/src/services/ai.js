@@ -1,7 +1,6 @@
 // Archivo nuevo: backend/src/services/ai.js
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 /**
  * Envía los datos de caja, stock o una duda operativa a la IA y devuelve una recomendación clara.
@@ -24,7 +23,7 @@ Datos actuales enviados por el sistema:
     return {
       ok: true,
       modo: "local-demo",
-      respuesta: generarRespuestaDemo({ pregunta, datosCaja })
+      respuesta: generarRespuestaDemo({ pregunta, datosCaja, stockCritico })
     };
   }
 
@@ -79,4 +78,55 @@ function generarRespuestaDemo({ pregunta, datosCaja }) {
   }
 
   return `Recibí tu consulta: "${pregunta || "Ayuda general"}". Para activar la IA en vivo, configurá la variable GEMINI_API_KEY en tu servidor. Mientras tanto, verificá los movimientos de efectivo y el último conteo de insumos.`;
+}
+function generarRespuestaDemo({ pregunta, datosCaja, stockCritico }) {
+  const bloques = [];
+
+  // 1. Auditoría de números de caja
+  if (datosCaja && datosCaja.esperado !== undefined && datosCaja.real !== undefined) {
+    const diferencia = Number(datosCaja.real) - Number(datosCaja.esperado);
+    const gastos = Number(datosCaja.gastos || 0);
+
+    if (diferencia < 0) {
+      const falta = Math.abs(diferencia);
+      bloques.push(
+        `💸 FALTANTE DE CAJA ($${falta}):\n` +
+        `• Revisá si pagaste a un proveedor en efectivo desde el cajón y olvidaste anotar el retiro${gastos > 0 ? ` (tenés $${gastos} registrados en gastos)` : ' (tenés $0 registrados en gastos/retiros)'}.\n` +
+        `• Verificá si una venta cobrada con Mercado Pago o transferencia se fichó como Efectivo.\n` +
+        `• Si el faltante es redondo ($${falta}), buscá un ticket por ese monto exacto o un vuelto mal entregado.`
+      );
+    } else if (diferencia > 0) {
+      bloques.push(
+        `💰 SOBRANTE DE CAJA (+$${diferencia}):\n` +
+        `• Verificá si incluiste el fondo de cambio inicial dentro del conteo sin haberlo cargado en "Fondo inicial".\n` +
+        `• Revisá si cobraste un pedido rápido en efectivo que no se fichó en el sistema.`
+      );
+    } else {
+      bloques.push(`✅ CAJA CUADRADA: El efectivo real en el cajón coincide exacto con el esperado ($0 de diferencia).`);
+    }
+  }
+
+  // 2. Diagnóstico real de insumos críticos y en alerta con burn rate
+  if (Array.isArray(stockCritico) && stockCritico.length > 0) {
+    const ordenados = [...stockCritico].sort(
+      (a, b) => (Number(a.autonomiaDias) || 99) - (Number(b.autonomiaDias) || 99)
+    );
+    const lineas = ordenados.map((i) => {
+      const urgencia = i.estado === 'critico' ? '🔴 CRÍTICO' : '🟡 ALERTA';
+      const accion = i.pedidoPendiente
+        ? 'Pedido ya enviado al proveedor.'
+        : `Pedir ${i.cantidadPedido} ${i.unidad} a ${i.proveedor?.nombre ?? 'proveedor'}.`;
+      return `• ${urgencia} — ${i.nombre}: ${i.autonomiaDias} día(s) de autonomía (consumo: ${i.burnRate ?? 0} ${i.unidad}/día). ${accion}`;
+    });
+
+    bloques.push(`📦 PRIORIDAD DE REPOSICIÓN (${stockCritico.length} insumos en riesgo):\n${lineas.join('\n')}`);
+  } else if (pregunta && pregunta.toLowerCase().includes('stock')) {
+    bloques.push(`✅ STOCK AL DÍA: Todos los insumos del local tienen autonomía suficiente y no hay alertas activas.`);
+  }
+
+  if (bloques.length > 0) {
+    return bloques.join('\n\n');
+  }
+
+  return `Ingresá los montos de efectivo arriba para auditar la caja o tocá "📦 Analizar stock crítico" para evaluar tus insumos.`;
 }

@@ -63,7 +63,7 @@ export default function App() {
      ) : vista === 'pedidos' ? (
        <Pedidos pedidos={st.pedidos} whatsappModo={st.whatsappModo} />
      ) : (
-       <Asistente localId={st.local?.id} insumos={st.insumos} />
+      <Asistente localId={st.local?.id} insumos={st.insumos} onReponer={st.reponer} />
      )}
       </main>
     </div>
