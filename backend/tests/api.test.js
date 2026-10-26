@@ -61,3 +61,20 @@ test('rechaza niveles inválidos (solo 0, 25, 50, 100)', async () => {
   const r = await api('/locales/1/cierres', { method: 'POST', body: { items: [{ insumoId: 1, nivel: 37 }] } });
   assert.equal(r.status, 400);
 });
+
+test('POST /api/ia/ayuda diagnostica faltante de caja y stock crítico', async () => {
+  const r = await fetch(`${baseUrl}/api/ia/ayuda`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      localId: 1,
+      pregunta: 'Revisar cierre y stock',
+      datosCaja: { esperado: 45000, real: 41500, gastos: 3000 },
+    }),
+  });
+  assert.equal(r.status, 200);
+  const body = await r.json();
+  assert.equal(body.ok, true);
+  assert.match(body.respuesta, /FALTANTE DE CAJA/i);
+  assert.match(body.respuesta, /PRIORIDAD DE REPOSICIÓN/i);
+});

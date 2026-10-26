@@ -1,13 +1,25 @@
 // Apartado de Asistente IA: Arqueo de caja, consultas operativas y acción rápida de stock
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../../api/client.js';
 
 export default function Asistente({ localId = 1, insumos = [], onReponer }) {
-  const [fondoInicial, setFondoInicial] = useState('');
-  const [ventasEfectivo, setVentasEfectivo] = useState('');
-  const [gastosCaja, setGastosCaja] = useState('');
-  const [esperadoManual, setEsperadoManual] = useState('');
-  const [real, setReal] = useState('');
+  const guardado = (() => {
+  try { return JSON.parse(localStorage.getItem('stocktouch_arqueo') || '{}'); }
+  catch { return {}; }
+})();
+
+const [fondoInicial, setFondoInicial] = useState(guardado.fondoInicial ?? '');
+const [ventasEfectivo, setVentasEfectivo] = useState(guardado.ventasEfectivo ?? '');
+const [gastosCaja, setGastosCaja] = useState(guardado.gastosCaja ?? '');
+const [esperadoManual, setEsperadoManual] = useState(guardado.esperadoManual ?? '');
+const [real, setReal] = useState(guardado.real ?? '');
+
+useEffect(() => {
+  localStorage.setItem(
+    'stocktouch_arqueo',
+    JSON.stringify({ fondoInicial, ventasEfectivo, gastosCaja, esperadoManual, real })
+  );
+}, [fondoInicial, ventasEfectivo, gastosCaja, esperadoManual, real]);
 
   const [pregunta, setPregunta] = useState('');
   const [respuesta, setRespuesta] = useState(null);

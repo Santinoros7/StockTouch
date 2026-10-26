@@ -12,7 +12,8 @@ const procesos = [
   { nombre: 'API ', color: '\x1b[33m', args: ['run', 'dev', '--prefix', 'backend'] },
   { nombre: 'WEB ', color: '\x1b[36m', args: ['run', 'dev', '--prefix', 'frontend'] },
 ].map(({ nombre, color, args }) => {
-  const p = spawn('npm', args, { shell: true, env: { ...process.env, FORCE_COLOR: '1' } });
+  const comandoCompleto = `npm ${args.join(' ')}`;
+  const p = spawn(comandoCompleto, { shell: true, env: { ...process.env, FORCE_COLOR: '1' } });
   const prefijo = `${color}[${nombre}]\x1b[0m `;
   const salida = (stream) => (data) =>
     data.toString().split(/\r?\n/).filter(Boolean).forEach((l) => stream.write(prefijo + l + '\n'));
